@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule, Routes } from "@angular/router";
+import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
 
@@ -18,6 +19,7 @@ import { coreConfig } from "app/app-config";
 import { AppComponent } from "app/app.component";
 import { LayoutModule } from "app/layout/layout.module";
 import { SampleModule } from "app/main/sample/sample.module";
+import { AuthForgotPasswordV2Component } from "./main/pages/authentication/auth-forgot-password-v2/auth-forgot-password-v2.component";
 
 const appRoutes: Routes = [
   {
@@ -35,6 +37,18 @@ const appRoutes: Routes = [
     redirectTo: "/pages/authentication/login-v2",
   },
   {
+    path: "register",
+    redirectTo: "/pages/authentication/register-v2",
+  },
+  {
+    path: "forgot-password",
+    redirectTo: "/pages/authentication/forgot-password-v2",
+  },
+  {
+    path: "reset-password-v2",
+    redirectTo: "/pages/authentication/reset-password-v2",
+  },
+  {
     path: "**",
     redirectTo: "/pages/miscellaneous/error", //Error 404 - Page not found
   },
@@ -46,6 +60,7 @@ const appRoutes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    ReactiveFormsModule,
     RouterModule.forRoot(appRoutes, {
       scrollPositionRestoration: "enabled", // Add options right here
       relativeLinkResolution: "legacy",
