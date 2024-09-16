@@ -19,7 +19,6 @@ import { coreConfig } from "app/app-config";
 import { AppComponent } from "app/app.component";
 import { LayoutModule } from "app/layout/layout.module";
 import { SampleModule } from "app/main/sample/sample.module";
-import { AuthForgotPasswordV2Component } from "./main/pages/authentication/auth-forgot-password-v2/auth-forgot-password-v2.component";
 
 const appRoutes: Routes = [
   {
