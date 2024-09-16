@@ -27,7 +27,7 @@ export const menu: CoreMenu[] = [
       {
         id: "list",
         title: "List",
-        translate: "LIST ",
+        translate: "List ",
         type: "item",
         icon: "circle",
         url: "login",
@@ -35,7 +35,7 @@ export const menu: CoreMenu[] = [
       {
         id: "view",
         title: "View",
-        translate: "VIEW",
+        translate: "View",
         type: "item",
         icon: "circle",
         url: "login",
@@ -43,7 +43,7 @@ export const menu: CoreMenu[] = [
       {
         id: "edit",
         title: "Edit",
-        translate: "EDIT",
+        translate: "Edit",
         type: "item",
         icon: "circle",
         url: "login",
