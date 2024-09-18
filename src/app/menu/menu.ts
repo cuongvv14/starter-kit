@@ -30,7 +30,7 @@ export const menu: CoreMenu[] = [
         translate: "List ",
         type: "item",
         icon: "circle",
-        url: "login",
+        url: "user-list",
       },
       {
         id: "view",

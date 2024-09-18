@@ -47,6 +47,7 @@ const appRoutes: Routes = [
     path: "reset-password-v2",
     redirectTo: "/pages/authentication/reset-password-v2",
   },
+
   {
     path: "**",
     redirectTo: "/pages/miscellaneous/error", //Error 404 - Page not found
@@ -64,6 +65,7 @@ const appRoutes: Routes = [
       scrollPositionRestoration: "enabled", // Add options right here
       relativeLinkResolution: "legacy",
     }),
+
     TranslateModule.forRoot(),
 
     //NgBootstrap
