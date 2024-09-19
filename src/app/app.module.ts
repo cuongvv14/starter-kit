@@ -3,7 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule, Routes } from "@angular/router";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { HttpClientModule } from "@angular/common/http";
+import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 
 import "hammerjs";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
@@ -19,6 +19,14 @@ import { coreConfig } from "app/app-config";
 import { AppComponent } from "app/app.component";
 import { LayoutModule } from "app/layout/layout.module";
 import { SampleModule } from "app/main/sample/sample.module";
+import {
+  AuthGuard,
+  ErrorInterceptor,
+  fakeBackendProvider,
+  JwtInterceptor,
+} from "./auth/helpers";
+import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
+import { FakeDbService } from "@fake-db/fake-db.service";
 
 const appRoutes: Routes = [
   {
@@ -27,26 +35,32 @@ const appRoutes: Routes = [
       import("./main/pages/pages.module").then((m) => m.PagesModule),
   },
   {
+    path: "apps",
+    loadChildren: () =>
+      import("./main/apps/apps.module").then((m) => m.AppsModule),
+    // canActivate: [AuthGuard],
+  },
+  {
     path: "",
     redirectTo: "/home",
     pathMatch: "full",
   },
-  {
-    path: "login",
-    redirectTo: "/pages/authentication/login-v2",
-  },
-  {
-    path: "register",
-    redirectTo: "/pages/authentication/register-v2",
-  },
-  {
-    path: "forgot-password",
-    redirectTo: "/pages/authentication/forgot-password-v2",
-  },
-  {
-    path: "reset-password-v2",
-    redirectTo: "/pages/authentication/reset-password-v2",
-  },
+  // {
+  //   path: "login",
+  //   redirectTo: "/pages/authentication/login-v2",
+  // },
+  // {
+  //   path: "register",
+  //   redirectTo: "/pages/authentication/register-v2",
+  // },
+  // {
+  //   path: "forgot-password",
+  //   redirectTo: "/pages/authentication/forgot-password-v2",
+  // },
+  // {
+  //   path: "reset-password-v2",
+  //   redirectTo: "/pages/authentication/reset-password-v2",
+  // },
 
   {
     path: "**",
@@ -60,6 +74,10 @@ const appRoutes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    HttpClientInMemoryWebApiModule.forRoot(FakeDbService, {
+      delay: 0,
+      passThruUnknownUrl: true,
+    }),
     ReactiveFormsModule,
     RouterModule.forRoot(appRoutes, {
       scrollPositionRestoration: "enabled", // Add options right here
@@ -82,7 +100,12 @@ const appRoutes: Routes = [
     LayoutModule,
     SampleModule,
   ],
-
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // ! IMPORTANT: Provider used to create fake backend, comment while using real API
+    fakeBackendProvider,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

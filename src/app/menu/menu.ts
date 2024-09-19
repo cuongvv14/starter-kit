@@ -30,7 +30,7 @@ export const menu: CoreMenu[] = [
         translate: "List ",
         type: "item",
         icon: "circle",
-        url: "user-list",
+        url: "/apps/user/user-list",
       },
       {
         id: "view",
@@ -38,7 +38,7 @@ export const menu: CoreMenu[] = [
         translate: "View",
         type: "item",
         icon: "circle",
-        url: "login",
+        url: "/apps/user/user-view",
       },
       {
         id: "edit",
@@ -46,7 +46,7 @@ export const menu: CoreMenu[] = [
         translate: "Edit",
         type: "item",
         icon: "circle",
-        url: "login",
+        url: "user-list",
       },
     ],
   },
