@@ -4,8 +4,7 @@
     <section class="app-user-edit">
       <div class="card">
         <div class="card-body">
-          <ul ngbNav class="nav nav-pills">
-            <!-- #nav="ngbNav" -->
+          <ul ngbNav #nav="ngbNav" class="nav nav-pills">
             <li ngbNavItem>
               <a ngbNavLink class="d-flex align-items-center"
                 ><i data-feather="user" class="mr-sm-50"></i
@@ -965,8 +964,7 @@
               </ng-template>
             </li>
           </ul>
-          <div class="mt-2"></div>
-          <!-- [ngbNavOutlet]="nav" -->
+          <div [ngbNavOutlet]="nav" class="mt-2"></div>
         </div>
       </div>
     </section>
