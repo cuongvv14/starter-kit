@@ -38,6 +38,12 @@ const routes: Routes = [
     path: "user",
     loadChildren: () => import("./user/user.module").then((m) => m.UserModule),
   },
+
+  {
+    path: "company",
+    loadChildren: () =>
+      import("./hrm-setting/branch/branch.module").then((m) => m.BranchModule),
+  },
 ];
 
 FullCalendarModule.registerPlugins([
