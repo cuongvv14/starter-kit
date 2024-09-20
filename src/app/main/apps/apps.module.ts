@@ -7,6 +7,12 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import { DepartmentListComponent } from './hrm-setting/department/department-list/department-list.component';
+import { DepartmentViewComponent } from './hrm-setting/department/department-view/department-view.component';
+import { DepartmentEditComponent } from './hrm-setting/department/department-edit/department-edit.component';
+import { PositionListComponent } from './hrm-setting/position/position-list/position-list.component';
+import { PositionViewComponent } from './hrm-setting/position/position-view/position-view.component';
+import { PositionEditComponent } from './hrm-setting/position/position-edit/position-edit.component';
 
 // routing
 const routes: Routes = [
@@ -54,7 +60,14 @@ FullCalendarModule.registerPlugins([
 ]);
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    DepartmentListComponent,
+    DepartmentViewComponent,
+    DepartmentEditComponent,
+    PositionListComponent,
+    PositionViewComponent,
+    PositionEditComponent
+  ],
   imports: [CommonModule, RouterModule.forChild(routes)],
 })
 export class AppsModule {}
