@@ -40,7 +40,7 @@ const routes: Routes = [
   },
 
   {
-    path: "company",
+    path: "hrm-setting",
     loadChildren: () =>
       import("./hrm-setting/branch/branch.module").then((m) => m.BranchModule),
   },

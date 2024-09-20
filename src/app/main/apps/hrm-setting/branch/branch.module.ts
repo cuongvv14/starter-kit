@@ -15,58 +15,63 @@ import { CoreSidebarModule } from "@core/components";
 // import { InvoiceListService } from 'app/main/apps/invoice/invoice-list/invoice-list.service';
 // import { InvoiceModule } from 'app/main/apps/invoice/invoice.module';
 
-import { UserEditComponent } from "app/main/apps/user/user-edit/user-edit.component";
 import { UserEditService } from "app/main/apps/user/user-edit/user-edit.service";
 
-import { UserListComponent } from "app/main/apps/user/user-list/user-list.component";
 import { UserListService } from "app/main/apps/user/user-list/user-list.service";
 
-import { UserViewComponent } from "app/main/apps/user/user-view/user-view.component";
 import { UserViewService } from "app/main/apps/user/user-view/user-view.service";
 import { Ng2FlatpickrModule } from "ng2-flatpickr";
 import { BranchEditComponent } from "./branch-edit/branch-edit.component";
 import { NewBranchSidebarComponent } from "./branch-list/new-branch-sidebar/new-branch-sidebar.component";
 import { BranchListComponent } from "./branch-list/branch-list.component";
+import { BranchListService } from "./branch-list/branch-list.service";
+import { BranchViewComponent } from "./branch-view/branch-view.component";
+import { BranchViewService } from "./branch-view/branch-view.service";
+import { BranchEditService } from "./branch-edit/branch-edit.service";
 
 // routing
 const routes: Routes = [
   {
-    path: "user-list",
-    component: UserListComponent,
+    path: "branch/branch-list",
+    component: BranchListComponent,
     resolve: {
-      uls: UserListService,
+      bls: BranchListService,
     },
-    data: { animation: "UserListComponent" },
+    data: { animation: "BranchListComponent" },
   },
   {
-    path: "user-view/:id",
-    component: UserViewComponent,
+    path: "branch/branch-view/:id",
+    component: BranchViewComponent,
     resolve: {
-      data: UserViewService,
-      // InvoiceListService,
+      data: BranchViewService,
     },
-    data: { path: "view/:id", animation: "UserViewComponent" },
+    data: { path: "view/:id", animation: "BranchViewComponent" },
   },
   {
-    path: "branch-edit/:id",
+    path: "branch/branch-edit/:id",
     component: BranchEditComponent,
     resolve: {
-      ues: BranchEditComponent,
+      ues: BranchEditService,
     },
     data: { animation: "BranchEditComponent" },
   },
   {
-    path: "user-view",
-    redirectTo: "/apps/user/user-view/2", // Redirection
+    path: "branch/branch-view",
+    redirectTo: "/apps/branch/branch-view/1", // Redirection to default branch view
   },
   {
-    path: "user-edit",
-    redirectTo: "/apps/user/user-edit/2", // Redirection
+    path: "branch/branch-edit",
+    redirectTo: "/apps/branch/branch-edit/1", // Redirection to default branch edit
   },
 ];
 
 @NgModule({
-  declarations: [NewBranchSidebarComponent, BranchListComponent],
+  declarations: [
+    BranchEditComponent,
+    BranchListComponent,
+    BranchViewComponent,
+    NewBranchSidebarComponent,
+  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -83,6 +88,6 @@ const routes: Routes = [
     // InvoiceModule,
     CoreSidebarModule,
   ],
-  providers: [UserListService, UserViewService, UserEditService],
+  providers: [BranchListService, BranchViewService, BranchEditService],
 })
 export class BranchModule {}
