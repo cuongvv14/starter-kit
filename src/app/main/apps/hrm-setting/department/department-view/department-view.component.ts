@@ -1,15 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from "@angular/core";
+import { Router } from "@angular/router";
 
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import feather from "feather-icons";
 @Component({
-  selector: 'app-department-view',
-  templateUrl: './department-view.component.html',
-  styleUrls: ['./department-view.component.scss']
+  selector: "app-department-view",
+  templateUrl: "./department-view.component.html",
+  styleUrls: ["./department-view.component.scss"],
 })
-export class DepartmentViewComponent implements OnInit {
+export class DepartmentViewComponent implements OnInit, OnDestroy {
+  // public
+  public url = this.router.url;
+  public lastValue;
+  public data;
 
-  constructor() { }
+  // private
+  private _unsubscribeAll: Subject<any>;
 
-  ngOnInit(): void {
+  /**
+   * Constructor
+   *
+   * @param {Router} router
+   * @param {DepartmentViewComponent} _departmentViewService
+   */
+  constructor(
+    private router: Router,
+    private _departmentViewService: DepartmentViewComponent
+  ) {
+    this._unsubscribeAll = new Subject();
+    this.lastValue = this.url.substr(this.url.lastIndexOf("/") + 1);
   }
 
+  // ngAfterViewInit() {
+  //   feather.replace(); // Thay thế các icon Feather
+  // }
+
+  // Lifecycle Hooks
+  // -----------------------------------------------------------------------------------------------------
+  /**
+   * On init
+   */
+  ngOnInit(): void {
+    // this._branchViewService.onUserViewChanged
+    //   .pipe(takeUntil(this._unsubscribeAll))
+    //   .subscribe((response) => {
+    //     this.data = response;
+    //   });
+  }
+
+  /**
+   * On destroy
+   */
+  ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions
+    this._unsubscribeAll.next();
+    this._unsubscribeAll.complete();
+  }
 }

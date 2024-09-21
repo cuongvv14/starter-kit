@@ -12,14 +12,6 @@ import { CoreDirectivesModule } from "@core/directives/directives";
 import { CorePipesModule } from "@core/pipes/pipes.module";
 import { CoreSidebarModule } from "@core/components";
 
-// import { InvoiceListService } from 'app/main/apps/invoice/invoice-list/invoice-list.service';
-// import { InvoiceModule } from 'app/main/apps/invoice/invoice.module';
-
-import { UserEditService } from "app/main/apps/user/user-edit/user-edit.service";
-
-import { UserListService } from "app/main/apps/user/user-list/user-list.service";
-
-import { UserViewService } from "app/main/apps/user/user-view/user-view.service";
 import { Ng2FlatpickrModule } from "ng2-flatpickr";
 import { BranchEditComponent } from "./branch-edit/branch-edit.component";
 import { NewBranchSidebarComponent } from "./branch-list/new-branch-sidebar/new-branch-sidebar.component";
@@ -85,7 +77,6 @@ const routes: Routes = [
     NgxDatatableModule,
     CorePipesModule,
     CoreDirectivesModule,
-    // InvoiceModule,
     CoreSidebarModule,
   ],
   providers: [BranchListService, BranchViewService, BranchEditService],

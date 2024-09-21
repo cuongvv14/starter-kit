@@ -27,8 +27,8 @@ import {
 } from "./auth/helpers";
 import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
 import { FakeDbService } from "@fake-db/fake-db.service";
-import { DepartmentModule } from './main/apps/hrm-setting/department/department.module';
-import { PositionModule } from './main/apps/hrm-setting/position/position.module';
+import { DepartmentModule } from "./main/apps/hrm-setting/department/department.module";
+import { PositionModule } from "./main/apps/hrm-setting/position/position.module";
 
 const appRoutes: Routes = [
   {
@@ -101,8 +101,6 @@ const appRoutes: Routes = [
     // App modules
     LayoutModule,
     SampleModule,
-    DepartmentModule,
-    PositionModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
