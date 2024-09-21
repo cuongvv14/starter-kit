@@ -1,15 +1,41 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
+import { CoreSidebarService } from "@core/components/core-sidebar/core-sidebar.service";
 
 @Component({
-  selector: 'app-new-position-sidebar',
-  templateUrl: './new-position-sidebar.component.html',
-  styleUrls: ['./new-position-sidebar.component.scss']
+  selector: "app-new-position-sidebar",
+  templateUrl: "./new-position-sidebar.component.html",
 })
 export class NewPositionSidebarComponent implements OnInit {
+  public fullname;
+  public username;
+  public email;
 
-  constructor() { }
+  /**
+   * Constructor
+   *
+   * @param {CoreSidebarService} _coreSidebarService
+   */
+  constructor(private _coreSidebarService: CoreSidebarService) {}
 
-  ngOnInit(): void {
+  /**
+   * Toggle the sidebar
+   *
+   * @param name
+   */
+  toggleSidebar(name): void {
+    this._coreSidebarService.getSidebarRegistry(name).toggleOpen();
   }
 
+  /**
+   * Submit
+   *
+   * @param form
+   */
+  submit(form) {
+    if (form.valid) {
+      this.toggleSidebar("new-branch-sidebar");
+    }
+  }
+
+  ngOnInit(): void {}
 }
