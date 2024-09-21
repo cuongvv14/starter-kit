@@ -1,16 +1,21 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
-import { Router } from '@angular/router';
-import { CoreConfigService } from '@core/services/config.service';
+import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from "@angular/forms";
+import { first, takeUntil } from "rxjs/operators";
+import { Subject } from "rxjs";
+import { Router } from "@angular/router";
+import { CoreConfigService } from "@core/services/config.service";
+import { AuthenticationService } from "app/auth/service";
 
 @Component({
-  selector: 'app-auth-login-v2',
-  templateUrl: './auth-login-v2.component.html',
-  styleUrls: ['./auth-login-v2.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  selector: "app-auth-login-v2",
+  templateUrl: "./auth-login-v2.component.html",
+  styleUrls: ["./auth-login-v2.component.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class AuthLoginV2Component implements OnInit {
   //  Public
@@ -19,7 +24,7 @@ export class AuthLoginV2Component implements OnInit {
   public loading = false;
   public submitted = false;
   public returnUrl: string;
-  public error = '';
+  public error = "";
   public passwordTextType: boolean;
 
   // Private
@@ -32,6 +37,7 @@ export class AuthLoginV2Component implements OnInit {
    */
   constructor(
     private _coreConfigService: CoreConfigService,
+    private _authenticationService: AuthenticationService,
     private _formBuilder: UntypedFormBuilder,
     private _route: ActivatedRoute,
     private _router: Router
@@ -42,17 +48,17 @@ export class AuthLoginV2Component implements OnInit {
     this._coreConfigService.config = {
       layout: {
         navbar: {
-          hidden: true
+          hidden: true,
         },
         menu: {
-          hidden: true
+          hidden: true,
         },
         footer: {
-          hidden: true
+          hidden: true,
         },
         customizer: false,
-        enableLocalStorage: false
-      }
+        enableLocalStorage: false,
+      },
     };
   }
 
@@ -79,10 +85,23 @@ export class AuthLoginV2Component implements OnInit {
     // Login
     this.loading = true;
 
+    this._authenticationService
+      .login(this.f.email.value, this.f.password.value)
+      .pipe(first())
+      .subscribe(
+        (data) => {
+          this._router.navigate([this.returnUrl]);
+        },
+        (error) => {
+          this.error = error;
+          this.loading = false;
+        }
+      );
+
     // redirect to home page
-    setTimeout(() => {
-      this._router.navigate(['/']);
-    }, 100);
+    // setTimeout(() => {
+    //   this._router.navigate(['/']);
+    // }, 100);
   }
 
   // Lifecycle Hooks
@@ -93,17 +112,19 @@ export class AuthLoginV2Component implements OnInit {
    */
   ngOnInit(): void {
     this.loginForm = this._formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      email: ["", [Validators.required, Validators.email]],
+      password: ["", Validators.required],
     });
 
     // get return url from route parameters or default to '/'
-    this.returnUrl = this._route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl = this._route.snapshot.queryParams["returnUrl"] || "/";
 
     // Subscribe to config changes
-    this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
-      this.coreConfig = config;
-    });
+    this._coreConfigService.config
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((config) => {
+        this.coreConfig = config;
+      });
   }
 
   /**
