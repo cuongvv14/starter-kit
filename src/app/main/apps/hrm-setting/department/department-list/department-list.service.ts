@@ -5,6 +5,7 @@ import {
   Resolve,
   RouterStateSnapshot,
 } from "@angular/router";
+import { environment } from "environments/environment";
 
 import { BehaviorSubject, Observable } from "rxjs";
 @Injectable()
@@ -45,11 +46,14 @@ export class DepartmentListService implements Resolve<any> {
    */
   getDataTableRows(): Promise<any[]> {
     return new Promise((resolve, reject) => {
-      this._httpClient.get("api/users-data").subscribe((response: any) => {
-        this.rows = response;
-        this.onUserListChanged.next(this.rows);
-        resolve(this.rows);
-      }, reject);
+      this._httpClient
+        .get(`${environment.apiUrl}/department`)
+        .subscribe((response: any) => {
+          this.rows = response.data;
+          console.log("response", response.data);
+          this.onUserListChanged.next(this.rows);
+          resolve(this.rows);
+        }, reject);
     });
   }
 }

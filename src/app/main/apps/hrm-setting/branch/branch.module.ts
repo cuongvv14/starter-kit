@@ -49,7 +49,7 @@ const routes: Routes = [
   },
   {
     path: "branch/branch-view",
-    redirectTo: "/apps/branch/branch-view/1", // Redirection to default branch view
+    redirectTo: "/apps/hrm-setting/branch/branch-view/1", // Redirection to default branch view
   },
   {
     path: "branch/branch-edit",

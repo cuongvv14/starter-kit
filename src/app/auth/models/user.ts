@@ -1,4 +1,4 @@
-﻿import { Role } from './role';
+﻿import { Role } from "./role";
 
 export class User {
   id: number;
@@ -9,4 +9,7 @@ export class User {
   avatar: string;
   role: Role;
   token?: string;
+  data?: {
+    accessToken: string;
+  };
 }

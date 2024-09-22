@@ -50,20 +50,20 @@ const routes: Routes = [
     loadChildren: () =>
       import("./hrm-setting/branch/branch.module").then((m) => m.BranchModule),
   },
-  {
-    path: "hrm-setting",
-    loadChildren: () =>
-      import("./hrm-setting/department/department.module").then(
-        (m) => m.DepartmentModule
-      ),
-  },
-  {
-    path: "hrm-setting",
-    loadChildren: () =>
-      import("./hrm-setting/position/position.module").then(
-        (m) => m.PositionModule
-      ),
-  },
+  // {
+  //   path: "hrm-setting",
+  //   loadChildren: () =>
+  //     import("./hrm-setting/department/department.module").then(
+  //       (m) => m.DepartmentModule
+  //     ),
+  // },
+  // {
+  //   path: "hrm-setting",
+  //   loadChildren: () =>
+  //     import("./hrm-setting/position/position.module").then(
+  //       (m) => m.PositionModule
+  //     ),
+  // },
 ];
 
 FullCalendarModule.registerPlugins([

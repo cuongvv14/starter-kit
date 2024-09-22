@@ -10,6 +10,8 @@ import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { TranslateModule } from "@ngx-translate/core";
 import { ToastrModule } from "ngx-toastr"; // For auth after login toast
 
+import { NgxDatatableModule } from "@swimlane/ngx-datatable";
+
 import { CoreModule } from "@core/core.module";
 import { CoreCommonModule } from "@core/common.module";
 import { CoreSidebarModule, CoreThemeCustomizerModule } from "@core/components";
@@ -75,6 +77,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    NgxDatatableModule,
     HttpClientModule,
     HttpClientInMemoryWebApiModule.forRoot(FakeDbService, {
       delay: 0,
@@ -106,7 +109,7 @@ const appRoutes: Routes = [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     // ! IMPORTANT: Provider used to create fake backend, comment while using real API
-    fakeBackendProvider,
+    // fakeBackendProvider,
   ],
   bootstrap: [AppComponent],
 })

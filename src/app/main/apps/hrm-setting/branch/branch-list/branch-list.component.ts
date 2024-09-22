@@ -95,6 +95,7 @@ export class BranchListComponent implements OnInit {
 
     // Filter Our Data
     const temp = this.tempData.filter(function (d) {
+      console.log("data", d);
       return d.fullName.toLowerCase().indexOf(val) !== -1 || !val;
     });
 
@@ -203,6 +204,7 @@ export class BranchListComponent implements OnInit {
             this._branchListService.onUserListChanged
               .pipe(takeUntil(this._unsubscribeAll))
               .subscribe((response) => {
+                console.log("response123", response);
                 this.rows = response;
                 this.tempData = this.rows;
               });
@@ -211,6 +213,8 @@ export class BranchListComponent implements OnInit {
           this._branchListService.onUserListChanged
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
+              console.log("response456", response);
+
               this.rows = response;
               this.tempData = this.rows;
             });

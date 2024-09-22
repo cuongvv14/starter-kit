@@ -8,6 +8,7 @@ import feather from "feather-icons";
   selector: "app-branch-view",
   templateUrl: "./branch-view.component.html",
   styleUrls: ["./branch-view.component.scss"],
+  encapsulation: ViewEncapsulation.None,
 })
 export class BranchViewComponent implements OnInit, OnDestroy {
   // public

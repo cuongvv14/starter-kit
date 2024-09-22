@@ -41,7 +41,6 @@ const routes: Routes = [
     component: UserViewComponent,
     resolve: {
       data: UserViewService,
-      // InvoiceListService,
     },
     data: { path: "view/:id", animation: "UserViewComponent" },
   },
@@ -51,7 +50,7 @@ const routes: Routes = [
     resolve: {
       ues: UserEditService,
     },
-    data: { animation: "UserEditComponent" },
+    data: { animation: "  " },
   },
   {
     path: "user-view",

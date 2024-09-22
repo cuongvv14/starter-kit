@@ -114,14 +114,14 @@
               ngx-datatable-cell-template
             >
               <div class="d-flex align-items-center">
-                <div *ngIf="row.avatar.length > 0; else customAvatar">
-                  <img
+                <div *ngIf="row.length > 0; else customAvatar">
+                  <!-- <img
                     class="rounded-circle mr-1"
                     src="{{ row.avatar }}"
                     height="32"
                     width="32"
                     alt="datatable-avatar"
-                  />
+                  /> -->
                 </div>
                 <ng-template #customAvatar>
                   <div
@@ -142,7 +142,7 @@
                     ><span class="font-weight-bold">{{ name }}</span></a
                   >
                   <span class="text-muted font-small-2"
-                    >&#64;{{ row.username }}</span
+                    >&#64;{{ row.branchName }}</span
                   >
                 </div>
               </div>
