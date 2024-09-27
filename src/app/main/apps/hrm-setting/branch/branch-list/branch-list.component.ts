@@ -8,6 +8,9 @@ import { CoreConfigService } from "@core/services/config.service";
 import { CoreSidebarService } from "@core/components/core-sidebar/core-sidebar.service";
 
 import { BranchListService } from "./branch-list.service";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { FlatpickrOptions } from "ng2-flatpickr";
+import { FormBuilder, Validators } from "@angular/forms";
 
 @Component({
   selector: "app-branch-list",
@@ -61,7 +64,10 @@ export class BranchListComponent implements OnInit {
   // Private
   private tempData = [];
   private _unsubscribeAll: Subject<any>;
-
+  private form: any;
+  private patternPhone: string = "^(03|05|07|08|09)+([0-9]{8})$";
+  private patternEmail: string = "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$";
+  private patternTax: string = "^[0-9]{10}$";
   /**
    * Constructor
    *
@@ -72,10 +78,98 @@ export class BranchListComponent implements OnInit {
   constructor(
     private _branchListService: BranchListService,
     private _coreSidebarService: CoreSidebarService,
-    private _coreConfigService: CoreConfigService
+    private modalService: NgbModal,
+    private _coreConfigService: CoreConfigService,
+    private fb: FormBuilder
   ) {
     this._unsubscribeAll = new Subject();
+    this.form = this.fb.group({
+      branchName: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(255),
+        ],
+      ],
+      address: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(255),
+        ],
+      ],
+      email: ["", [Validators.required, Validators.pattern(this.patternEmail)]],
+      phoneNumber: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(10),
+          Validators.pattern(this.patternPhone),
+        ],
+      ],
+      taxCode: ["", [Validators.required, Validators.pattern(this.patternTax)]],
+      establishedDate: ["", [Validators.required]],
+    });
+    this.fetchBranchList();
   }
+
+  fetchBranchList(): void {
+    this._branchListService.getDataTableRows().then((data) => {
+      this.rows = data;
+      console.log("Branches fetched:", data);
+    });
+  }
+
+  onSubmitReactiveForm(modal): void {
+    if (this.form.valid) {
+      const formData = this.form.value;
+
+      console.log(formData);
+
+      this._branchListService.createBranch(formData).subscribe(
+        (response) => {
+          console.log("Thêm chi nhánh thành công", response);
+          modal.close();
+          this.fetchBranchList(); // Refresh dữ liệu
+        },
+        (error) => {
+          console.error("Có lỗi xảy ra", error); // In ra lỗi chi tiết
+          console.log("Chi tiết lỗi:", error.error);
+        }
+      );
+    }
+  }
+
+  get BranchName() {
+    return this.form.get("branchName");
+  }
+
+  get Email() {
+    return this.form.get("email");
+  }
+
+  get Address() {
+    return this.form.get("address");
+  }
+
+  get PhoneNumber() {
+    return this.form.get("phoneNumber");
+  }
+
+  get TaxCode() {
+    return this.form.get("taxCode");
+  }
+
+  get EstablishedDate() {
+    return this.form.get("establishedDate");
+  }
+
+  public basicDateOptions: FlatpickrOptions = {
+    altInput: true,
+  };
 
   // Public Methods
   // -----------------------------------------------------------------------------------------------------
@@ -95,8 +189,7 @@ export class BranchListComponent implements OnInit {
 
     // Filter Our Data
     const temp = this.tempData.filter(function (d) {
-      console.log("data", d);
-      return d.fullName.toLowerCase().indexOf(val) !== -1 || !val;
+      return d.branchName.toLowerCase().indexOf(val) !== -1 || !val;
     });
 
     // Update The Rows
@@ -110,8 +203,12 @@ export class BranchListComponent implements OnInit {
    *
    * @param name
    */
-  toggleSidebar(name): void {
-    this._coreSidebarService.getSidebarRegistry(name).toggleOpen();
+  // modal Basic
+  modalOpen(modalBasic) {
+    this.modalService.open(modalBasic, {
+      size: "lg",
+      centered: true,
+    });
   }
 
   /**
@@ -201,20 +298,17 @@ export class BranchListComponent implements OnInit {
         //! If we have zoomIn route Transition then load datatable after 450ms(Transition will finish in 400ms)
         if (config.layout.animation === "zoomIn") {
           setTimeout(() => {
-            this._branchListService.onUserListChanged
+            this._branchListService.onBranchListChanged
               .pipe(takeUntil(this._unsubscribeAll))
               .subscribe((response) => {
-                console.log("response123", response);
                 this.rows = response;
                 this.tempData = this.rows;
               });
           }, 450);
         } else {
-          this._branchListService.onUserListChanged
+          this._branchListService.onBranchListChanged
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((response) => {
-              console.log("response456", response);
-
               this.rows = response;
               this.tempData = this.rows;
             });

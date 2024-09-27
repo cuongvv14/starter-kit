@@ -4,17 +4,21 @@ import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import feather from "feather-icons";
+import { BranchViewService } from "./branch-view.service";
+import { CoreSidebarService } from "@core/components/core-sidebar/core-sidebar.service";
+import { CoreConfigService } from "@core/services/config.service";
 @Component({
   selector: "app-branch-view",
   templateUrl: "./branch-view.component.html",
   styleUrls: ["./branch-view.component.scss"],
-  encapsulation: ViewEncapsulation.None,
 })
 export class BranchViewComponent implements OnInit, OnDestroy {
   // public
   public url = this.router.url;
   public lastValue;
   public data;
+  public rows;
+  private tempData = [];
 
   // private
   private _unsubscribeAll: Subject<any>;
@@ -23,11 +27,13 @@ export class BranchViewComponent implements OnInit, OnDestroy {
    * Constructor
    *
    * @param {Router} router
-   * @param {BranchViewComponent} _branchViewService
+   * @param {BranchViewService} _branchViewService
    */
   constructor(
     private router: Router,
-    private _branchViewService: BranchViewComponent
+    private _branchViewService: BranchViewService,
+    private _coreSidebarService: CoreSidebarService,
+    private _coreConfigService: CoreConfigService
   ) {
     this._unsubscribeAll = new Subject();
     this.lastValue = this.url.substr(this.url.lastIndexOf("/") + 1);
@@ -43,11 +49,30 @@ export class BranchViewComponent implements OnInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
-    // this._branchViewService.onUserViewChanged
-    //   .pipe(takeUntil(this._unsubscribeAll))
-    //   .subscribe((response) => {
-    //     this.data = response;
-    //   });
+    // Subscribe config change
+    this._coreConfigService.config
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe((config) => {
+        //! If we have zoomIn route Transition then load datatable after 450ms(Transition will finish in 400ms)
+        if (config.layout.animation === "zoomIn") {
+          setTimeout(() => {
+            this._branchViewService.onUserViewChanged
+              .pipe(takeUntil(this._unsubscribeAll))
+              .subscribe((response) => {
+                console.log("response123", response);
+                this.rows = response;
+                this.tempData = this.rows;
+              });
+          }, 450);
+        } else {
+          this._branchViewService.onUserViewChanged
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((response) => {
+              this.rows = response;
+              this.tempData = this.rows;
+            });
+        }
+      });
   }
 
   /**

@@ -6,6 +6,7 @@ import { map } from "rxjs/operators";
 import { environment } from "environments/environment";
 import { User, Role } from "app/auth/models";
 import { ToastrService } from "ngx-toastr";
+import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class AuthenticationService {
@@ -22,6 +23,7 @@ export class AuthenticationService {
    */
   constructor(
     private _http: HttpClient,
+    private router: Router,
     private _toastrService: ToastrService
   ) {
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -84,6 +86,50 @@ export class AuthenticationService {
 
             // notify
             this.currentUserSubject.next(user);
+          }
+
+          return user;
+        })
+      );
+  }
+
+  /**
+   * User register
+   *
+   * @param email
+   * @param password
+   * @returns user
+   */
+  register(email: string, password: string, organizationName: string) {
+    return this._http
+      .post<any>(`${environment.apiUrl}/auth/register`, {
+        email,
+        password,
+        organizationName,
+      })
+      .pipe(
+        map((user) => {
+          // Registration successful if there's a jwt token in the response
+          if (user && user.data.accessToken) {
+            console.log("user", user);
+
+            // Store user details and jwt token in local storage to keep user logged in between page refreshes
+            localStorage.setItem("currentUser", JSON.stringify(user));
+
+            // Display welcome toast
+            setTimeout(() => {
+              this._toastrService.success(
+                "You have successfully registered. Now you can start to explore. Enjoy! 🎉",
+                "👋 Welcome, " + user.firstName + "!",
+                { toastClass: "toast ngx-toastr", closeButton: true }
+              );
+            }, 2500);
+
+            // Notify
+            this.currentUserSubject.next(user);
+
+            // Redirect to login page
+            this.router.navigate(["/auth/login"]); // Add the redirect here
           }
 
           return user;

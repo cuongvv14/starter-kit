@@ -12,8 +12,8 @@
                 <div class="col-12 col-md-4">
                   <fieldset class="form-group">
                     <ng-select
-                      [items]="selectRole"
-                      [(ngModel)]="selectedRole1"
+                      [items]="branches"
+                      [(ngModel)]="selectBranch"
                       name="selectedRole1"
                       bindLabel="name"
                       placeholder="Select Role"
@@ -57,14 +57,14 @@
           <div class="col-md-6 col-12">
             <div class="d-flex justify-content-between align-items-center m-1">
               <label class="d-flex align-items-center"
-                >Show
+                >Xem
                 <select class="form-control mx-25" [(ngModel)]="selectedOption">
                   <option value="10">10</option>
                   <option value="25">25</option>
                   <option value="50">50</option>
                   <option value="100">100</option>
                 </select>
-                entries</label
+                mục</label
               >
             </div>
           </div>
@@ -75,7 +75,7 @@
               class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0"
             >
               <label class="d-flex align-items-center ml-1 ml-md-0"
-                >Search:<input
+                >Tìm kiếm:<input
                   [(ngModel)]="searchValue1"
                   name="searchValue1"
                   type="search"
@@ -86,13 +86,13 @@
               <button
                 class="btn btn-primary ml-1"
                 rippleEffect
-                (click)="toggleSidebar('new-user-sidebar')"
+                (click)="modalOpen(modalBasic)"
               >
                 <i
                   data-feather="plus"
                   class="d-sm-none d-inline-block mr-0 mr-sm-1"
                 ></i
-                ><span class="d-none d-sm-inline-block">Add New User</span>
+                ><span class="d-none d-sm-inline-block">Thêm Phòng Ban</span>
               </button>
             </div>
           </div>
@@ -107,22 +107,17 @@
           [footerHeight]="50"
           [scrollbarH]="true"
         >
-          <ngx-datatable-column name="User" prop="fullName" [width]="200">
+          <ngx-datatable-column
+            name="Tên Phòng Ban"
+            prop="departmentName"
+            [width]="200"
+          >
             <ng-template
               let-row="row"
               let-name="value"
               ngx-datatable-cell-template
             >
               <div class="d-flex align-items-center">
-                <div *ngIf="row.avatar.length > 0; else customAvatar">
-                  <img
-                    class="rounded-circle mr-1"
-                    src="{{ row.avatar }}"
-                    height="32"
-                    width="32"
-                    alt="datatable-avatar"
-                  />
-                </div>
                 <ng-template #customAvatar>
                   <div
                     class="avatar mr-1 ml-0"
@@ -137,116 +132,183 @@
                 </ng-template>
                 <div class="cell-line-height">
                   <a
-                    routerLink="/apps/user/user-view/{{ row.id }}"
+                    routerLink="/apps/hrm-setting/department/department-view/{{
+                      row.id
+                    }}"
                     class="font-medium-1 d-block"
                     ><span class="font-weight-bold">{{ name }}</span></a
                   >
-                  <span class="text-muted font-small-2"
-                    >&#64;{{ row.username }}</span
-                  >
+                  <!-- <span class="text-muted font-small-2"
+                    >&#64;{{ row.departmentName }}</span
+                  > -->
                 </div>
               </div>
             </ng-template>
           </ngx-datatable-column>
+          <!-- Level -->
           <ngx-datatable-column
-            name="Email"
-            prop="email"
+            name="Level"
+            prop="level"
             [width]="200"
           ></ngx-datatable-column>
-          <ngx-datatable-column name="Role" prop="role" [width]="100">
-            <ng-template let-role="value" ngx-datatable-cell-template>
-              <div>
-                <i
-                  class="feather font-medium-3"
-                  [ngClass]="{
-                    'icon-edit-2 text-info': role == 'Editor',
-                    'icon-settings text-warning': role == 'Author',
-                    'icon-database text-success': role == 'Maintainer',
-                    'icon-user text-primary': role == 'Subscriber',
-                    'icon-slack text-danger': role == 'Admin'
-                  }"
-                ></i>
-                {{ role }}
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
+          <!-- branchId -->
           <ngx-datatable-column
-            name="Plan"
-            prop="currentPlan"
+            name="Tên Chi nhánh"
+            prop="branch.branchName"
+            [width]="100"
+          >
+          </ngx-datatable-column>
+
+          <ngx-datatable-column
+            name="Phòng ban gốc"
+            prop="parentDepartment.departmentName"
             [width]="100"
           ></ngx-datatable-column>
-          <ngx-datatable-column name="Status" prop="status" [width]="50">
-            <ng-template let-status="value" ngx-datatable-cell-template>
-              <div
-                class="badge badge-pill"
-                [ngClass]="{
-                  'badge-light-success': status == 'active',
-                  'badge-light-secondary': status == 'inactive',
-                  'badge-light-warning': status == 'pending'
-                }"
-              >
-                {{ status }}
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
-          <ngx-datatable-column name="Actions" [width]="40" [sortable]="false">
-            <ng-template ngx-datatable-cell-template let-row="row">
-              <div ngbDropdown container="body">
-                <button
-                  ngbDropdownToggle
-                  type="button"
-                  class="btn icon-btn btn-sm hide-arrow"
-                  rippleEffect
-                >
-                  <span
-                    [data-feather]="'more-vertical'"
-                    [class]="'cursor-pointer'"
-                  ></span>
-                </button>
-                <div ngbDropdownMenu>
-                  <a
-                    routerLink="/apps/user/user-view/{{ row.id }}"
-                    ngbDropdownItem
-                    ><span
-                      [data-feather]="'file-text'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Details</a
-                  ><a
-                    routerLink="/apps/user/user-edit/{{ row.id }}"
-                    ngbDropdownItem
-                    ><span
-                      [data-feather]="'edit'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Edit</a
-                  ><a href="javascript:;" ngbDropdownItem
-                    ><span
-                      [data-feather]="'trash'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Delete</a
-                  >
-                </div>
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
         </ngx-datatable>
       </div>
     </section>
     <!--/ User List -->
   </div>
 
-  <!-- New User Sidebar -->
-  <core-sidebar
-    class="modal modal-slide-in sidebar-todo-modal fade"
-    name="new-branch-sidebar"
-    overlayClass="modal-backdrop"
-  >
-    <app-new-department-sidebar></app-new-department-sidebar>
-  </core-sidebar>
-  <!--/ New User Sidebar -->
+  <!-- New modal -->
+  <ng-template #modalBasic let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="myModalLabel1">Thêm mới Phòng Ban</h4>
+      <button
+        type="button"
+        class="close"
+        (click)="modal.dismiss('Cross click')"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body" tabindex="0" ngbAutofocus>
+      <div class="form-area">
+        <form [formGroup]="form" (ngSubmit)="onSubmitReactiveForm()">
+          <div class="form-group">
+            <label for="departmentName">Tên phòng ban</label>
+            <input
+              type="text"
+              id="departmentName"
+              placeholder="Tên phòng ban"
+              class="form-control"
+              name="departmentName"
+              formControlName="departmentName"
+              [ngClass]="{
+                'is-invalid': DepartmentName?.touched && DepartmentName?.invalid
+              }"
+            />
+
+            <div
+              *ngIf="DepartmentName?.touched && DepartmentName?.invalid"
+              class="invalid-feedback"
+            >
+              <div *ngIf="DepartmentName.errors?.['required']">
+                Tên phòng ban là bắt buộc
+              </div>
+              <div *ngIf="DepartmentName.errors?.['minlength']">
+                Tên phòng ban phải có ít nhất 5 ký tự
+              </div>
+              <div *ngIf="DepartmentName.errors?.['maxlength']">
+                Tên phòng ban không được vượt quá 255 ký tự
+              </div>
+              <div *ngIf="DepartmentName.errors?.['pattern']">
+                Tên phòng ban không được là số
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="">Cấp độ:</label>
+            <input
+              type="input"
+              placeholder="Cấp độ "
+              class="form-control"
+              name="level"
+              formControlName="level"
+            />
+            <div
+              class="alert alert-danger"
+              *ngIf="Level?.touched && Level?.invalid"
+            >
+              <div *ngIf="Level?.errors?.['required']">Cấp độ là bắt buộc</div>
+              <div *ngIf="Level?.errors?.['minlength']">
+                Cấp độ phải có ít nhất 1 ký tự
+              </div>
+              <div *ngIf="Level?.errors?.['maxlength']">
+                Cấp độ không được vượt quá 10 ký tự
+              </div>
+              <div *ngIf="Level?.errors?.['pattern']">Cấp độ phải là số</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="branch">Tên chi nhánh:</label>
+            <ng-select
+              [items]="branches"
+              bindLabel="branchName"
+              bindValue="id"
+              formControlName="branchId"
+              placeholder="Chọn chi nhánh"
+            >
+            </ng-select>
+
+            <div
+              *ngIf="BranchId.touched && BranchId.invalid"
+              class="alert alert-danger"
+            >
+              <div *ngIf="BranchId.errors?.['required']">
+                Chi nhánh là bắt buộc
+              </div>
+              <div *ngIf="BranchId.errors?.['pattern']">
+                Chi nhánh không hợp lệ
+              </div>
+              <div *ngIf="BranchId.errors?.['minlength']">
+                Chi nhánh phải lớn hơn 1
+              </div>
+              <div *ngIf="BranchId.errors?.['maxlength']">
+                Chi nhánh không được vượt quá 10 kí tự
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="parentDepartment">Phòng ban gốc:</label>
+            <ng-select
+              [items]="departments"
+              bindLabel="departmentName"
+              bindValue="id"
+              formControlName="parentDepartmentId"
+              placeholder="Chọn phòng ban gốc"
+            >
+            </ng-select>
+
+            <div
+              *ngIf="ParentDepartmentId.touched && ParentDepartmentId.invalid"
+              class="alert alert-danger"
+            >
+              <div *ngIf="ParentDepartmentId.errors?.['required']">
+                Phòng ban gốc là bắt buộc
+              </div>
+              <div *ngIf="ParentDepartmentId.errors?.['pattern']">
+                Phòng ban gốc không hợp lệ
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="form.invalid"
+        (click)="onSubmitReactiveForm(modalBasic)"
+        rippleEffect
+      >
+        Lưu
+      </button>
+    </div>
+  </ng-template>
+  <!--/ New modal -->
 </div>

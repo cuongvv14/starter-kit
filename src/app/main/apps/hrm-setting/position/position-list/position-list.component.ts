@@ -7,6 +7,10 @@ import { takeUntil } from "rxjs/operators";
 import { CoreConfigService } from "@core/services/config.service";
 import { CoreSidebarService } from "@core/components/core-sidebar/core-sidebar.service";
 import { PositionListService } from "./position-list.service";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { FlatpickrOptions } from "ng2-flatpickr";
+import { FormBuilder, NgForm, Validators } from "@angular/forms";
+import { DepartmentListService } from "../../department/department-list/department-list.service";
 
 @Component({
   selector: "app-position-list",
@@ -24,6 +28,10 @@ export class PositionListComponent implements OnInit {
   public previousRoleFilter = "";
   public previousPlanFilter = "";
   public previousStatusFilter = "";
+
+  public departments: any;
+  public positions: any;
+  public modalRef: any;
 
   public selectRole: any = [
     { name: "All", value: "" },
@@ -60,7 +68,7 @@ export class PositionListComponent implements OnInit {
   // Private
   private tempData = [];
   private _unsubscribeAll: Subject<any>;
-
+  private form: any;
   /**
    * Constructor
    *
@@ -70,14 +78,63 @@ export class PositionListComponent implements OnInit {
    */
   constructor(
     private _positionListService: PositionListService,
-    private _coreSidebarService: CoreSidebarService,
-    private _coreConfigService: CoreConfigService
+    private _departmentListService: DepartmentListService,
+    private _coreConfigService: CoreConfigService,
+    private modalService: NgbModal,
+    private fb: FormBuilder
   ) {
     this._unsubscribeAll = new Subject();
+    this.form = this.fb.group({
+      positionName: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(1),
+          Validators.maxLength(255),
+          Validators.pattern("^[^0-9]+$"),
+        ],
+      ],
+      departmentId: [
+        "",
+        [
+          Validators.required,
+          Validators.pattern("^[0-9]+$"),
+          Validators.minLength(1),
+          Validators.maxLength(10),
+        ],
+      ],
+    });
   }
 
   // Public Methods
   // -----------------------------------------------------------------------------------------------------
+
+  onSubmitReactiveForm(): void {
+    if (this.form.valid) {
+      const positionData = this.form.value;
+
+      this._positionListService.createPosition(positionData).subscribe(
+        (response) => {
+          if (this.modalRef) {
+            this.modalRef.close();
+          }
+          this.loadData();
+        },
+        (error) => {
+          console.error("Có lỗi xảy ra khi thêm chức vụ:", error); // Error handling
+        }
+      );
+    } else {
+      console.log("Form không hợp lệ"); // Form is invalid
+    }
+  }
+  get PositionName() {
+    return this.form.get("positionName");
+  }
+
+  get DepartmentId() {
+    return this.form.get("departmentId");
+  }
 
   /**
    * filterUpdate
@@ -101,15 +158,6 @@ export class PositionListComponent implements OnInit {
     this.rows = temp;
     // Whenever The Filter Changes, Always Go Back To The First Page
     this.table.offset = 0;
-  }
-
-  /**
-   * Toggle the sidebar
-   *
-   * @param name
-   */
-  toggleSidebar(name): void {
-    this._coreSidebarService.getSidebarRegistry(name).toggleOpen();
   }
 
   /**
@@ -159,6 +207,13 @@ export class PositionListComponent implements OnInit {
     );
     this.rows = this.temp;
   }
+  // modal Basic
+  modalOpen(modalBasic) {
+    this.modalService.open(modalBasic, {
+      size: "lg",
+      centered: true,
+    });
+  }
 
   /**
    * Filter Rows
@@ -192,28 +247,58 @@ export class PositionListComponent implements OnInit {
    * On init
    */
   ngOnInit(): void {
-    // Subscribe config change
+    // Subscribe to config changes
     this._coreConfigService.config
-      .pipe(takeUntil(this._unsubscribeAll))
+      .pipe(takeUntil(this._unsubscribeAll)) // Unsubscribe when component is destroyed
       .subscribe((config) => {
-        //! If we have zoomIn route Transition then load datatable after 450ms(Transition will finish in 400ms)
+        //! If there is zoomIn route transition, delay the datatable load
         if (config.layout.animation === "zoomIn") {
           setTimeout(() => {
-            this._positionListService.onUserListChanged
+            this._positionListService.onPositionListChanged
               .pipe(takeUntil(this._unsubscribeAll))
               .subscribe((response) => {
                 this.rows = response;
                 this.tempData = this.rows;
               });
+            this._positionListService.onPositionListChanged
+              .pipe(takeUntil(this._unsubscribeAll))
+              .subscribe((branchResponse) => {
+                console.log("Branch Data:", branchResponse);
+                this.positions = branchResponse;
+              });
+            this.loadParentDepartments(); // Call load positions
           }, 450);
         } else {
-          this._positionListService.onUserListChanged
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((response) => {
-              this.rows = response;
-              this.tempData = this.rows;
-            });
+          // Load data immediately if no transition is required
+          this.loadData();
+          this.loadParentDepartments();
         }
+      });
+  }
+  loadData(): void {
+    Promise.all([
+      this._departmentListService.getDataTableRows(), // API call for department data
+      this._positionListService.getDataTableRows(), // API call for branch data
+    ])
+      .then(([departmentResponse, positionResponse]) => {
+        this.rows = departmentResponse; // Set department data
+        this.tempData = this.rows;
+        this.positions = positionResponse; // Set Position data
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }
+
+  loadParentDepartments(): void {
+    this._departmentListService
+      .getDataTableRows()
+      .then((departmentResponse) => {
+        this.departments = departmentResponse; // Dữ liệu phòng ban gốc
+        console.log("Department Data:", this.departments); // Logging để kiểm tra dữ liệu trả về
+      })
+      .catch((error) => {
+        console.error("Error loading departments:", error);
       });
   }
 

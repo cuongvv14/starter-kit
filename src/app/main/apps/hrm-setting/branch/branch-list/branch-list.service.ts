@@ -12,7 +12,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 @Injectable()
 export class BranchListService implements Resolve<any> {
   public rows: any;
-  public onUserListChanged: BehaviorSubject<any>;
+  public onBranchListChanged: BehaviorSubject<any>;
 
   /**
    * Constructor
@@ -21,7 +21,7 @@ export class BranchListService implements Resolve<any> {
    */
   constructor(private _httpClient: HttpClient) {
     // Set the defaults
-    this.onUserListChanged = new BehaviorSubject({});
+    this.onBranchListChanged = new BehaviorSubject({});
   }
 
   /**
@@ -52,9 +52,17 @@ export class BranchListService implements Resolve<any> {
         .subscribe((response: any) => {
           this.rows = response.data;
           console.log("response", response.data);
-          this.onUserListChanged.next(this.rows);
+          this.onBranchListChanged.next(this.rows);
           resolve(this.rows);
         }, reject);
     });
+  }
+
+  /**
+   * Create new branch (POST request to API)
+   * @param branchData - Data of the new branch to be created
+   */
+  createBranch(branchData: any): Observable<any> {
+    return this._httpClient.post(`${environment.apiUrl}/branch`, branchData);
   }
 }

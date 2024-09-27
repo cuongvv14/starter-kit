@@ -49,22 +49,6 @@ const appRoutes: Routes = [
     redirectTo: "/home",
     pathMatch: "full",
   },
-  // {
-  //   path: "login",
-  //   redirectTo: "/pages/authentication/login-v2",
-  // },
-  // {
-  //   path: "register",
-  //   redirectTo: "/pages/authentication/register-v2",
-  // },
-  // {
-  //   path: "forgot-password",
-  //   redirectTo: "/pages/authentication/forgot-password-v2",
-  // },
-  // {
-  //   path: "reset-password-v2",
-  //   redirectTo: "/pages/authentication/reset-password-v2",
-  // },
 
   {
     path: "**",
@@ -78,6 +62,7 @@ const appRoutes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     NgxDatatableModule,
+    ReactiveFormsModule,
     HttpClientModule,
     HttpClientInMemoryWebApiModule.forRoot(FakeDbService, {
       delay: 0,

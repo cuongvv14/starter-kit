@@ -40,6 +40,12 @@ export class DepartmentListService implements Resolve<any> {
       }, reject);
     });
   }
+  createDepartment(departmentData: any): Observable<any> {
+    return this._httpClient.post(
+      `${environment.apiUrl}/department`,
+      departmentData
+    );
+  }
 
   /**
    * Get rows

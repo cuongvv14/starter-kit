@@ -38,6 +38,7 @@ const routes: Routes = [
     AuthLoginV2Component,
     AuthRegisterV2Component,
     AuthResetPasswordV2Component,
+    AuthForgotPasswordV2Component,
   ],
   imports: [
     CommonModule,

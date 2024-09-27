@@ -57,14 +57,14 @@
           <div class="col-md-6 col-12">
             <div class="d-flex justify-content-between align-items-center m-1">
               <label class="d-flex align-items-center"
-                >Show
+                >Xem
                 <select class="form-control mx-25" [(ngModel)]="selectedOption">
                   <option value="10">10</option>
                   <option value="25">25</option>
                   <option value="50">50</option>
                   <option value="100">100</option>
                 </select>
-                entries</label
+                mục</label
               >
             </div>
           </div>
@@ -75,7 +75,7 @@
               class="d-flex align-items-center justify-content-end pr-1 pb-1 pb-md-0"
             >
               <label class="d-flex align-items-center ml-1 ml-md-0"
-                >Search:<input
+                >Tìm Kiếm:<input
                   [(ngModel)]="searchValue1"
                   name="searchValue1"
                   type="search"
@@ -86,13 +86,13 @@
               <button
                 class="btn btn-primary ml-1"
                 rippleEffect
-                (click)="toggleSidebar('new-user-sidebar')"
+                (click)="modalOpen(modalBasic)"
               >
                 <i
                   data-feather="plus"
                   class="d-sm-none d-inline-block mr-0 mr-sm-1"
                 ></i
-                ><span class="d-none d-sm-inline-block">Add New User</span>
+                ><span class="d-none d-sm-inline-block">Thêm Chức Vụ</span>
               </button>
             </div>
           </div>
@@ -107,22 +107,17 @@
           [footerHeight]="50"
           [scrollbarH]="true"
         >
-          <ngx-datatable-column name="User" prop="fullName" [width]="200">
+          <ngx-datatable-column
+            name="Chức Vụ"
+            prop="positionName"
+            [width]="200"
+          >
             <ng-template
               let-row="row"
               let-name="value"
               ngx-datatable-cell-template
             >
               <div class="d-flex align-items-center">
-                <div *ngIf="row.avatar.length > 0; else customAvatar">
-                  <img
-                    class="rounded-circle mr-1"
-                    src="{{ row.avatar }}"
-                    height="32"
-                    width="32"
-                    alt="datatable-avatar"
-                  />
-                </div>
                 <ng-template #customAvatar>
                   <div
                     class="avatar mr-1 ml-0"
@@ -137,116 +132,115 @@
                 </ng-template>
                 <div class="cell-line-height">
                   <a
-                    routerLink="/apps/user/user-view/{{ row.id }}"
+                    [routerLink]="[
+                      '/apps/hrm-setting/position/position-view',
+                      row.id
+                    ]"
                     class="font-medium-1 d-block"
                     ><span class="font-weight-bold">{{ name }}</span></a
                   >
-                  <span class="text-muted font-small-2"
+                  <!-- <span class="text-muted font-small-2"
                     >&#64;{{ row.username }}</span
-                  >
+                  > -->
                 </div>
               </div>
             </ng-template>
           </ngx-datatable-column>
           <ngx-datatable-column
-            name="Email"
-            prop="email"
+            name="Phòng ban"
+            prop="department.departmentName"
             [width]="200"
           ></ngx-datatable-column>
-          <ngx-datatable-column name="Role" prop="role" [width]="100">
-            <ng-template let-role="value" ngx-datatable-cell-template>
-              <div>
-                <i
-                  class="feather font-medium-3"
-                  [ngClass]="{
-                    'icon-edit-2 text-info': role == 'Editor',
-                    'icon-settings text-warning': role == 'Author',
-                    'icon-database text-success': role == 'Maintainer',
-                    'icon-user text-primary': role == 'Subscriber',
-                    'icon-slack text-danger': role == 'Admin'
-                  }"
-                ></i>
-                {{ role }}
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
-          <ngx-datatable-column
-            name="Plan"
-            prop="currentPlan"
-            [width]="100"
-          ></ngx-datatable-column>
-          <ngx-datatable-column name="Status" prop="status" [width]="50">
-            <ng-template let-status="value" ngx-datatable-cell-template>
-              <div
-                class="badge badge-pill"
-                [ngClass]="{
-                  'badge-light-success': status == 'active',
-                  'badge-light-secondary': status == 'inactive',
-                  'badge-light-warning': status == 'pending'
-                }"
-              >
-                {{ status }}
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
-          <ngx-datatable-column name="Actions" [width]="40" [sortable]="false">
-            <ng-template ngx-datatable-cell-template let-row="row">
-              <div ngbDropdown container="body">
-                <button
-                  ngbDropdownToggle
-                  type="button"
-                  class="btn icon-btn btn-sm hide-arrow"
-                  rippleEffect
-                >
-                  <span
-                    [data-feather]="'more-vertical'"
-                    [class]="'cursor-pointer'"
-                  ></span>
-                </button>
-                <div ngbDropdownMenu>
-                  <a
-                    routerLink="/apps/user/user-view/{{ row.id }}"
-                    ngbDropdownItem
-                    ><span
-                      [data-feather]="'file-text'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Details</a
-                  ><a
-                    routerLink="/apps/user/user-edit/{{ row.id }}"
-                    ngbDropdownItem
-                    ><span
-                      [data-feather]="'edit'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Edit</a
-                  ><a href="javascript:;" ngbDropdownItem
-                    ><span
-                      [data-feather]="'trash'"
-                      [size]="16"
-                      [class]="'mr-50'"
-                    ></span>
-                    Delete</a
-                  >
-                </div>
-              </div>
-            </ng-template>
-          </ngx-datatable-column>
         </ngx-datatable>
       </div>
     </section>
     <!--/ User List -->
   </div>
 
-  <!-- New User Sidebar -->
-  <core-sidebar
-    class="modal modal-slide-in sidebar-todo-modal fade"
-    name="new-branch-sidebar"
-    overlayClass="modal-backdrop"
-  >
-    <app-new-position-sidebar></app-new-position-sidebar>
-  </core-sidebar>
-  <!--/ New User Sidebar -->
+  <!-- New Position -->
+  <ng-template #modalBasic let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="myModalLabel1">Thêm Chức Vụ</h4>
+      <button
+        type="button"
+        class="close"
+        (click)="modal.dismiss('Cross click')"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body" tabindex="0" ngbAutofocus>
+      <div class="form-area">
+        <form [formGroup]="form" (ngSubmit)="onSubmitReactiveForm()">
+          <div class="form-group">
+            <label for="">Chức Vụ</label>
+            <input
+              type="text"
+              placeholder="Chức Vụ"
+              class="form-control"
+              name="positionName"
+              formControlName="positionName"
+            />
+            <div
+              class="alert alert-danger"
+              *ngIf="positionName?.touched && positionName?.invalid"
+            >
+              <div *ngIf="positionName?.errors?.['required']">
+                Tên vị trí là bắt buộc
+              </div>
+              <div *ngIf="positionName?.errors?.['minlength']">
+                Tên vị trí phải có ít nhất 1 ký tự
+              </div>
+              <div *ngIf="positionName?.errors?.['maxlength']">
+                Tên vị trí không được vượt quá 255 ký tự
+              </div>
+              <div *ngIf="positionName?.errors?.['pattern']">
+                Tên vị trí không được chứa số
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="">Phòng Ban:</label>
+            <ng-select
+              [items]="departments"
+              bindLabel="name"
+              placeholder="Chọn phòng ban gốc"
+              formControlName="departmentId"
+            ></ng-select>
+            <div
+              class="alert alert-danger"
+              *ngIf="departmentId?.touched && departmentId?.invalid"
+            >
+              <div *ngIf="departmentId?.errors?.['required']">
+                Phòng ban là bắt buộc
+              </div>
+              <div *ngIf="departmentId?.errors?.['minlength']">
+                Phòng ban phải có ít nhất 1 ký tự
+              </div>
+              <div *ngIf="departmentId?.errors?.['maxlength']">
+                Phòng ban không được vượt quá 10 ký tự
+              </div>
+              <div *ngIf="departmentId?.errors?.['pattern']">
+                Phòng ban phải là số
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="form.invalid"
+        (click)="onSubmitReactiveForm()"
+        rippleEffect
+      >
+        Lưu
+      </button>
+    </div>
+  </ng-template>
+  <!--/ New Position -->
 </div>

@@ -1,15 +1,14 @@
 <div class="auth-wrapper auth-v2">
   <div class="auth-inner row m-0">
-    <!-- Brand logo--><a class="brand-logo" href="javascript:void(0);">
+    <!-- Brand logo-->
+    <a class="brand-logo" href="javascript:void(0);">
       <img
         src="{{ coreConfig.app.appLogoImage }}"
         alt="brand-logo"
         height="28"
       />
-      <h2 class="brand-text text-primary ml-1">
-        {{ coreConfig.app.appName }}
-      </h2></a
-    >
+      <h2 class="brand-text text-primary ml-1">{{ coreConfig.app.appName }}</h2>
+    </a>
     <!-- /Brand logo-->
     <!-- Left Text-->
     <div class="d-none d-lg-flex col-lg-8 align-items-center p-5">
@@ -32,107 +31,165 @@
     <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
       <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
         <h2 class="card-title font-weight-bold mb-1">Tạo Tài Khoản</h2>
-        <p class="card-text mb-2">Make your app management easy and fun!</p>
         <form
           class="auth-register-form mt-2"
           [formGroup]="registerForm"
           (ngSubmit)="onSubmit()"
         >
+          <!-- Full Name Field -->
           <div class="form-group">
-            <label for="register-username" class="form-label">Username</label>
+            <label for="register-fullname" class="form-label">
+              Tên Tổ Chức <span class="text-danger">(*)</span>
+            </label>
             <input
               type="text"
-              formControlName="username"
+              formControlName="organizationName"
               class="form-control"
-              placeholder="johndoe"
-              aria-describedby="register-username"
+              placeholder="HeNo"
+              aria-describedby="register-organizationName"
               tabindex="1"
               autofocus
-              [ngClass]="{ 'is-invalid': submitted && f.username.errors }"
+              [ngClass]="{
+                'is-invalid':
+                  f.organizationName.touched && f.organizationName.errors
+              }"
             />
             <div
-              *ngIf="submitted && f.username.errors"
               class="invalid-feedback"
+              *ngIf="f.organizationName.touched && f.organizationName.errors"
             >
-              <div *ngIf="f.username.errors.required">Username is required</div>
+              <div *ngIf="f.organizationName.errors.required">
+                Họ và tên là bắt buộc
+              </div>
+              <div *ngIf="f.organizationName.errors.minlength">
+                Họ và tên phải ít nhất 3 ký tự
+              </div>
             </div>
           </div>
+
+          <!-- Email Field -->
           <div class="form-group">
-            <label for="register-email" class="form-label">Email</label>
+            <label for="register-email" class="form-label">
+              Email <span class="text-danger">(*)</span>
+            </label>
             <input
               type="text"
               formControlName="email"
               class="form-control"
-              placeholder="john@example.com"
+              placeholder="johndoe@gmail.com"
               aria-describedby="register-email"
-              tabindex="2"
-              [ngClass]="{ 'is-invalid': submitted && f.email.errors }"
+              tabindex="3"
+              [ngClass]="{ 'is-invalid': f.email.touched && f.email.errors }"
             />
-            <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-              <div *ngIf="f.email.errors.required">Email is required</div>
-              <div *ngIf="f.email.errors.email">
-                Email must be a valid email address
+            <div
+              class="invalid-feedback"
+              *ngIf="f.email.touched && f.email.errors"
+            >
+              <div *ngIf="f.email.errors.required">Email là bắt buộc</div>
+              <div *ngIf="f.email.errors.pattern">
+                Email phải đúng định dạng
               </div>
             </div>
           </div>
 
+          <!-- Password Field -->
           <div class="form-group">
-            <label for="register-password" class="form-label">Password</label>
-
-            <div class="input-group input-group-merge form-password-toggle">
+            <label for="register-password" class="form-label">
+              Mật khẩu <span class="text-danger">(*)</span>
+            </label>
+            <div class="input-group">
               <input
                 [type]="passwordTextType ? 'text' : 'password'"
                 formControlName="password"
-                class="form-control form-control-merge"
+                class="form-control"
                 placeholder="············"
-                aria-describedby="register-password"
-                tabindex="3"
                 [ngClass]="{
-                  'is-invalid error': submitted && f.password.errors
+                  'is-invalid': f.password.touched && f.password.errors
                 }"
               />
-              <div class="input-group-append">
-                <span class="input-group-text cursor-pointer"
-                  ><i
-                    class="feather font-small-4"
-                    [ngClass]="{
-                      'icon-eye-off': passwordTextType,
-                      'icon-eye': !passwordTextType
-                    }"
-                    (click)="togglePasswordTextType()"
-                  ></i
-                ></span>
+              <div
+                class="invalid-feedback"
+                *ngIf="f.password.touched && f.password.errors"
+              >
+                <div *ngIf="f.password.errors.required">
+                  Mật khẩu là bắt buộc
+                </div>
+                <div *ngIf="f.password.errors.minlength">
+                  Mật khẩu phải có ít nhất 8 ký tự
+                </div>
+                <div *ngIf="f.password.errors.pattern">
+                  Mật khẩu phải chứa ít nhất một chữ cái hoa, một chữ cái
+                  thường, một số, và một ký tự đặc biệt.
+                </div>
               </div>
             </div>
-            <div
-              *ngIf="submitted && f.password.errors"
-              class="invalid-feedback"
-              [ngClass]="{ 'd-block': submitted && f.password.errors }"
-            >
-              <div *ngIf="f.password.errors.required">Password is required</div>
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="form-group">
+            <label for="register-confirm-password" class="form-label">
+              Xác nhận mật khẩu <span class="text-danger">(*)</span>
+            </label>
+            <div class="input-group">
+              <input
+                [type]="confPasswordTextType ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                class="form-control"
+                placeholder="············"
+                [ngClass]="{
+                  'is-invalid':
+                    f.confirmPassword.touched && f.confirmPassword.errors
+                }"
+              />
+              <div
+                class="invalid-feedback"
+                *ngIf="f.confirmPassword.touched && f.confirmPassword.errors"
+              >
+                <div *ngIf="f.confirmPassword.errors.required">
+                  Xác nhận mật khẩu là bắt buộc
+                </div>
+                <div *ngIf="f.confirmPassword.errors.mustMatch">
+                  Mật khẩu xác nhận không khớp
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- Accept Terms Checkbox -->
           <div class="form-group">
             <div class="custom-control custom-checkbox">
               <input
                 class="custom-control-input"
                 type="checkbox"
+                formControlName="acceptTerms"
                 id="register-privacy-policy"
-                tabindex="4"
+                tabindex="6"
               />
               <label class="custom-control-label" for="register-privacy-policy">
                 Đồng ý với các
                 <a href="javascript:void(0);">Điều kiện & điều khoản</a>
               </label>
             </div>
+            <div
+              class="invalid-feedback"
+              *ngIf="f.acceptTerms.touched && f.acceptTerms.errors"
+            >
+              <div *ngIf="f.acceptTerms.errors.requiredTrue">
+                Bạn phải đồng ý với các điều khoản
+              </div>
+            </div>
           </div>
-          <button class="btn btn-primary btn-block" tabindex="5" rippleEffect>
-            Sign up
+
+          <!-- Register Button -->
+          <button class="btn btn-primary btn-block" tabindex="7" rippleEffect>
+            Đăng ký
           </button>
         </form>
+
+        <!-- Link to Login -->
         <p class="text-center mt-2">
-          <span>Bạn Đã Có Tài Khoản?</span
-          ><a routerLink="/pages/authentication/login-v2"
+          <span>Bạn Đã Có Tài Khoản?</span>
+          <a routerLink="/pages/authentication/login-v2"
             ><span>&nbsp;Đăng Nhập</span></a
           >
         </p>

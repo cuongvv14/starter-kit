@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewEncapsulation } from "@angular/core";
 import {
+  AbstractControl,
   UntypedFormBuilder,
   UntypedFormGroup,
+  ValidationErrors,
   Validators,
 } from "@angular/forms";
 
@@ -88,6 +90,33 @@ export class AuthResetPasswordV2Component implements OnInit {
     }
   }
 
+  mustMatch(newPassword: string, confirmPassword: string) {
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+      const passControl = formGroup.get(newPassword);
+      const confirmPassControl = formGroup.get(confirmPassword);
+
+      if (!passControl || !confirmPassControl) {
+        return null;
+      }
+
+      if (
+        confirmPassControl.errors &&
+        !confirmPassControl.errors["mustMatch"]
+      ) {
+        return null;
+      }
+
+      // So sánh giá trị của mật khẩu và xác nhận mật khẩu
+      if (passControl.value !== confirmPassControl.value) {
+        confirmPassControl.setErrors({ mustMatch: true });
+      } else {
+        confirmPassControl.setErrors(null);
+      }
+
+      return null;
+    };
+  }
+
   // Lifecycle Hooks
   // -----------------------------------------------------------------------------------------------------
 
@@ -95,10 +124,24 @@ export class AuthResetPasswordV2Component implements OnInit {
    * On init
    */
   ngOnInit(): void {
-    this.resetPasswordForm = this._formBuilder.group({
-      newPassword: ["", [Validators.required]],
-      confirmPassword: ["", [Validators.required]],
-    });
+    this.resetPasswordForm = this._formBuilder.group(
+      {
+        newPassword: [
+          "",
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(
+              "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+            ),
+          ],
+        ],
+        confirmPassword: ["", Validators.required],
+      },
+      {
+        validator: this.mustMatch("newPassword", "confirmPassword"), // Hàm so khớp mật khẩu
+      }
+    );
 
     // Subscribe to config changes
     this._coreConfigService.config

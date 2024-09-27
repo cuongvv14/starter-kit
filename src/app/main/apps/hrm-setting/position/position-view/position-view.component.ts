@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import feather from "feather-icons";
+import { PositionViewService } from "./position-view.service";
 @Component({
   selector: "app-position-view",
   templateUrl: "./position-view.component.html",
@@ -22,11 +23,11 @@ export class PositionViewComponent implements OnInit, OnDestroy {
    * Constructor
    *
    * @param {Router} router
-   * @param {PositionViewComponent} _positionViewService
+   * @param {PositionViewService} _positionViewService
    */
   constructor(
     private router: Router,
-    private _positionViewService: PositionViewComponent
+    private _positionViewService: PositionViewService
   ) {
     this._unsubscribeAll = new Subject();
     this.lastValue = this.url.substr(this.url.lastIndexOf("/") + 1);

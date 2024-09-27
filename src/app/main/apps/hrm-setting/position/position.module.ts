@@ -13,13 +13,13 @@ import { CorePipesModule } from "@core/pipes/pipes.module";
 import { CoreSidebarModule } from "@core/components";
 
 import { Ng2FlatpickrModule } from "ng2-flatpickr";
-import { NewPositionSidebarComponent } from "./position-list/new-position-sidebar/new-position-sidebar.component";
 import { PositionEditComponent } from "./position-edit/position-edit.component";
 import { PositionListComponent } from "./position-list/position-list.component";
 import { PositionViewComponent } from "./position-view/position-view.component";
 import { PositionListService } from "./position-list/position-list.service";
 import { PositionEditService } from "./position-edit/position-edit.service";
 import { PositionViewService } from "./position-view/position-view.service";
+import { DepartmentListService } from "../department/department-list/department-list.service";
 
 // routing
 const routes: Routes = [
@@ -49,11 +49,11 @@ const routes: Routes = [
   },
   {
     path: "position/position-view",
-    redirectTo: "/apps/position/position-view/1", // Redirection to default position view
+    redirectTo: "/apps/hrm-setting/position/position-view/1", // Redirection to default position view
   },
   {
     path: "position/position-edit",
-    redirectTo: "/apps/position/position-edit/1", // Redirection to default position edit
+    redirectTo: "/apps/hrm-setting/position/position-edit/1", // Redirection to default position edit
   },
 ];
 
@@ -62,7 +62,6 @@ const routes: Routes = [
     PositionEditComponent,
     PositionListComponent,
     PositionViewComponent,
-    NewPositionSidebarComponent,
   ],
   imports: [
     CommonModule,
@@ -79,6 +78,11 @@ const routes: Routes = [
     CoreDirectivesModule,
     CoreSidebarModule,
   ],
-  providers: [PositionListService, PositionEditService, PositionViewService],
+  providers: [
+    PositionListService,
+    PositionEditService,
+    PositionViewService,
+    DepartmentListService,
+  ],
 })
 export class PositionModule {}

@@ -8,6 +8,10 @@ import { CoreConfigService } from "@core/services/config.service";
 import { CoreSidebarService } from "@core/components/core-sidebar/core-sidebar.service";
 
 import { DepartmentListService } from "./department-list.service";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { FlatpickrOptions } from "ng2-flatpickr";
+import { FormBuilder, NgForm, Validators } from "@angular/forms";
+import { BranchListService } from "../../branch/branch-list/branch-list.service";
 @Component({
   selector: "app-department-list",
   templateUrl: "./department-list.component.html",
@@ -25,14 +29,9 @@ export class DepartmentListComponent implements OnInit {
   public previousPlanFilter = "";
   public previousStatusFilter = "";
 
-  public selectRole: any = [
-    { name: "All", value: "" },
-    { name: "Admin", value: "Admin" },
-    { name: "Author", value: "Author" },
-    { name: "Editor", value: "Editor" },
-    { name: "Maintainer", value: "Maintainer" },
-    { name: "Subscriber", value: "Subscriber" },
-  ];
+  public branches: any;
+  public departments: any;
+  public modalRef: any;
 
   public selectPlan: any = [
     { name: "All", value: "" },
@@ -49,7 +48,7 @@ export class DepartmentListComponent implements OnInit {
     { name: "Inactive", value: "Inactive" },
   ];
 
-  public selectedRole1 = [];
+  public selectBranch = [];
   public selectedPlan1 = [];
   public selectedStatus1 = [];
   public searchValue1 = "";
@@ -61,6 +60,8 @@ export class DepartmentListComponent implements OnInit {
   private tempData = [];
   private _unsubscribeAll: Subject<any>;
 
+  private form: any;
+
   /**
    * Constructor
    *
@@ -70,10 +71,87 @@ export class DepartmentListComponent implements OnInit {
    */
   constructor(
     private _departmentListService: DepartmentListService,
-    private _coreSidebarService: CoreSidebarService,
-    private _coreConfigService: CoreConfigService
+    private _branchListService: BranchListService,
+    private modalService: NgbModal,
+    private _coreConfigService: CoreConfigService,
+    private fb: FormBuilder
   ) {
     this._unsubscribeAll = new Subject();
+    this.form = this.fb.group({
+      departmentName: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(255),
+          Validators.pattern("^[^0-9]+$"),
+        ],
+      ],
+      level: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(1),
+          Validators.maxLength(10),
+          Validators.pattern("^[0-9]+$"),
+        ],
+      ],
+      branchId: [
+        [
+          Validators.required,
+          Validators.pattern("^[0-9]+$"),
+          Validators.minLength(1),
+          Validators.maxLength(10),
+        ],
+      ],
+      parentDepartmentId: [
+        [
+          Validators.required,
+          Validators.minLength(1),
+          Validators.maxLength(10),
+          Validators.pattern("^[0-9]+$"),
+        ],
+      ],
+    });
+  }
+
+  onSubmitReactiveForm(): void {
+    if (this.form.valid) {
+      const departmentData = this.form.value;
+
+      departmentData.level = parseInt(departmentData.level, 10);
+
+      this._departmentListService.createDepartment(departmentData).subscribe(
+        (response) => {
+          console.log("Thêm phòng ban thành công", response);
+          if (this.modalRef) {
+            this.modalRef.close();
+          }
+          this.loadData();
+        },
+        (error) => {
+          console.error("Có lỗi xảy ra khi thêm phòng ban", error);
+        }
+      );
+    } else {
+      console.log("Form không hợp lệ");
+    }
+  }
+
+  get DepartmentName() {
+    return this.form.get("departmentName");
+  }
+
+  get Level() {
+    return this.form.get("level");
+  }
+
+  get BranchId() {
+    return this.form.get("branchId");
+  }
+
+  get ParentDepartmentId() {
+    return this.form.get("parentDepartmentId");
   }
 
   // Public Methods
@@ -86,7 +164,7 @@ export class DepartmentListComponent implements OnInit {
    */
   filterUpdate(event) {
     // Reset ng-select on search
-    this.selectedRole1 = this.selectRole[0];
+    // this.selectBranch = this.selectRole[0];
     this.selectedPlan1 = this.selectPlan[0];
     this.selectedStatus1 = this.selectStatus[0];
 
@@ -94,7 +172,7 @@ export class DepartmentListComponent implements OnInit {
 
     // Filter Our Data
     const temp = this.tempData.filter(function (d) {
-      return d.fullName.toLowerCase().indexOf(val) !== -1 || !val;
+      return d.departmentName.toLowerCase().indexOf(val) !== -1 || !val;
     });
 
     // Update The Rows
@@ -108,8 +186,16 @@ export class DepartmentListComponent implements OnInit {
    *
    * @param name
    */
-  toggleSidebar(name): void {
-    this._coreSidebarService.getSidebarRegistry(name).toggleOpen();
+
+  //Modal Basic
+  modalOpen(modalBasic): void {
+    const modalRef = this.modalService.open(modalBasic, {
+      size: "lg",
+      centered: true,
+    });
+
+    // Thay đổi cách gọi modal.close() trong hàm onSubmitReactiveForm
+    this.modalRef = modalRef;
   }
 
   /**
@@ -192,7 +278,6 @@ export class DepartmentListComponent implements OnInit {
    * On init
    */
   ngOnInit(): void {
-    // Subscribe config change
     this._coreConfigService.config
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe((config) => {
@@ -205,15 +290,46 @@ export class DepartmentListComponent implements OnInit {
                 this.rows = response;
                 this.tempData = this.rows;
               });
+            this._branchListService.onBranchListChanged
+              .pipe(takeUntil(this._unsubscribeAll))
+              .subscribe((branchResponse) => {
+                console.log("Branch Data:", branchResponse);
+                this.branches = branchResponse;
+              });
+            this.loadParentDepartments(); // Gọi hàm loadParentDepartments ở đây
           }, 450);
         } else {
-          this._departmentListService.onUserListChanged
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((response) => {
-              this.rows = response;
-              this.tempData = this.rows;
-            });
+          this.loadData();
+          this.loadParentDepartments(); // Gọi hàm loadParentDepartments ở đây
         }
+      });
+  }
+
+  loadData(): void {
+    Promise.all([
+      this._departmentListService.getDataTableRows(), // API call for department data
+      this._branchListService.getDataTableRows(), // API call for branch data
+    ])
+      .then(([departmentResponse, branchResponse]) => {
+        this.rows = departmentResponse; // Set department data
+        this.tempData = this.rows;
+        this.branches = branchResponse; // Set branch data
+        console.log("Branch Data:", this.branches);
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      });
+  }
+
+  loadParentDepartments(): void {
+    this._departmentListService
+      .getDataTableRows()
+      .then((departmentResponse) => {
+        this.departments = departmentResponse; // Dữ liệu phòng ban gốc
+        console.log("Department Data:", this.departments); // Logging để kiểm tra dữ liệu trả về
+      })
+      .catch((error) => {
+        console.error("Error loading departments:", error);
       });
   }
 

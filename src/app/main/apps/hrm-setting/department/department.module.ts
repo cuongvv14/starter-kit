@@ -13,13 +13,13 @@ import { CorePipesModule } from "@core/pipes/pipes.module";
 import { CoreSidebarModule } from "@core/components";
 
 import { Ng2FlatpickrModule } from "ng2-flatpickr";
-import { NewDepartmentSidebarComponent } from "./department-list/new-department-sidebar/new-department-sidebar.component";
 import { DepartmentEditComponent } from "./department-edit/department-edit.component";
 import { DepartmentListComponent } from "./department-list/department-list.component";
 import { DepartmentEditService } from "./department-edit/department-edit.service";
 import { DepartmentListService } from "./department-list/department-list.service";
 import { DepartmentViewService } from "./department-view/department-view.service";
 import { DepartmentViewComponent } from "./department-view/department-view.component";
+import { BranchListService } from "../branch/branch-list/branch-list.service";
 
 // routing
 const routes: Routes = [
@@ -49,17 +49,16 @@ const routes: Routes = [
   },
   {
     path: "department/department-view",
-    redirectTo: "/apps/department/department-view/1", // Redirection to default department view
+    redirectTo: "/apps/hrm-setting/department/department-view/1", // Redirection to default department view
   },
   {
     path: "department/department-edit",
-    redirectTo: "/apps/department/department-edit/1", // Redirection to default department edit
+    redirectTo: "/apps/hrm-setting/department/department-edit/1", // Redirection to default department edit
   },
 ];
 
 @NgModule({
   declarations: [
-    NewDepartmentSidebarComponent,
     DepartmentListComponent,
     DepartmentEditComponent,
     DepartmentViewComponent,
@@ -83,6 +82,7 @@ const routes: Routes = [
     DepartmentEditService,
     DepartmentListService,
     DepartmentViewService,
+    BranchListService,
   ],
 })
 export class DepartmentModule {}

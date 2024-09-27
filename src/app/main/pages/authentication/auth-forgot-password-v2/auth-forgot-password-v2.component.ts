@@ -1,12 +1,19 @@
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewEncapsulation,
+} from "@angular/core";
 import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
 } from "@angular/forms";
-
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
+import { Router } from "@angular/router"; // Import Router
 
 import { CoreConfigService } from "@core/services/config.service";
 
@@ -17,13 +24,19 @@ import { CoreConfigService } from "@core/services/config.service";
   encapsulation: ViewEncapsulation.None,
 })
 export class AuthForgotPasswordV2Component implements OnInit {
-  // Public
+  // Public variables
   public emailVar;
   public coreConfig: any;
   public forgotPasswordForm: UntypedFormGroup;
+  public otpForm: UntypedFormGroup; // Form for OTP
   public submitted = false;
+  public submittedOtp = false; // Track OTP submission
+  public showOtpForm = false; // Track whether to show OTP form or not
 
-  // Private
+  // Reference for OTP modal template
+  @ViewChild("otpModalTemplate") otpModalTemplate: TemplateRef<any>;
+
+  // Private subject for cleanup
   private _unsubscribeAll: Subject<any>;
 
   /**
@@ -31,11 +44,15 @@ export class AuthForgotPasswordV2Component implements OnInit {
    *
    * @param {CoreConfigService} _coreConfigService
    * @param {FormBuilder} _formBuilder
+   * @param {NgbModal} modalService
+   * @param {Router} router // Inject the Router here
    *
    */
   constructor(
     private _coreConfigService: CoreConfigService,
-    private _formBuilder: UntypedFormBuilder
+    private _formBuilder: UntypedFormBuilder,
+    private modalService: NgbModal,
+    private router: Router // Inject Router for navigation
   ) {
     this._unsubscribeAll = new Subject();
 
@@ -62,8 +79,12 @@ export class AuthForgotPasswordV2Component implements OnInit {
     return this.forgotPasswordForm.controls;
   }
 
+  get fOtp() {
+    return this.otpForm.controls;
+  }
+
   /**
-   * On Submit
+   * Handle the form submission for email (forgot password)
    */
   onSubmit() {
     this.submitted = true;
@@ -72,6 +93,38 @@ export class AuthForgotPasswordV2Component implements OnInit {
     if (this.forgotPasswordForm.invalid) {
       return;
     }
+
+    // Simulate sending the reset password email
+    console.log(
+      "Reset password link sent to:",
+      this.forgotPasswordForm.value.email
+    );
+
+    // Switch to OTP form
+    this.showOtpForm = true;
+  }
+
+  /**
+   * Handle the form submission for OTP verification
+   */
+  onSubmitOtp() {
+    this.submittedOtp = true;
+
+    // stop here if form is invalid
+    if (this.otpForm.invalid) {
+      return;
+    }
+
+    // Perform OTP verification logic here
+    console.log("OTP Verified:", this.otpForm.value.otp);
+
+    // If OTP is valid, navigate to the reset password component
+    this.router.navigate(["/pages/authentication/reset-password-v2"]);
+
+    // Optionally, reset form states if needed
+    this.showOtpForm = false;
+    this.submittedOtp = false;
+    this.otpForm.reset();
   }
 
   // Lifecycle Hooks
@@ -81,8 +134,20 @@ export class AuthForgotPasswordV2Component implements OnInit {
    * On init
    */
   ngOnInit(): void {
+    // Initialize the forgot password form
     this.forgotPasswordForm = this._formBuilder.group({
-      email: ["", [Validators.required, Validators.email]],
+      email: [
+        "",
+        [
+          Validators.required,
+          Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
+        ],
+      ],
+    });
+
+    // Initialize the OTP form
+    this.otpForm = this._formBuilder.group({
+      otp: ["", [Validators.required, Validators.minLength(6)]],
     });
 
     // Subscribe to config changes

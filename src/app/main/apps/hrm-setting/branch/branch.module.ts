@@ -14,7 +14,6 @@ import { CoreSidebarModule } from "@core/components";
 
 import { Ng2FlatpickrModule } from "ng2-flatpickr";
 import { BranchEditComponent } from "./branch-edit/branch-edit.component";
-import { NewBranchSidebarComponent } from "./branch-list/new-branch-sidebar/new-branch-sidebar.component";
 import { BranchListComponent } from "./branch-list/branch-list.component";
 import { BranchListService } from "./branch-list/branch-list.service";
 import { BranchViewComponent } from "./branch-view/branch-view.component";
@@ -53,17 +52,12 @@ const routes: Routes = [
   },
   {
     path: "branch/branch-edit",
-    redirectTo: "/apps/branch/branch-edit/1", // Redirection to default branch edit
+    redirectTo: "/apps/hrm-setting/branch/branch-edit/1", // Redirection to default branch edit
   },
 ];
 
 @NgModule({
-  declarations: [
-    BranchEditComponent,
-    BranchListComponent,
-    BranchViewComponent,
-    NewBranchSidebarComponent,
-  ],
+  declarations: [BranchEditComponent, BranchListComponent, BranchViewComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),

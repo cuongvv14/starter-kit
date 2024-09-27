@@ -1,14 +1,18 @@
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from "@angular/core";
 import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  AbstractControl,
+  ValidationErrors,
 } from "@angular/forms";
 
-import { takeUntil } from "rxjs/operators";
+import { first, takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
 
 import { CoreConfigService } from "@core/services/config.service";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AuthenticationService } from "app/auth/service";
 
 @Component({
   selector: "app-auth-register-v2",
@@ -16,56 +20,87 @@ import { CoreConfigService } from "@core/services/config.service";
   styleUrls: ["./auth-register-v2.component.scss"],
   encapsulation: ViewEncapsulation.None,
 })
-export class AuthRegisterV2Component implements OnInit {
+export class AuthRegisterV2Component implements OnInit, OnDestroy {
   // Public
   public coreConfig: any;
-  public passwordTextType: boolean;
+  public passwordTextType: boolean = false;
+  public confPasswordTextType: boolean = false;
   public registerForm: UntypedFormGroup;
   public submitted = false;
+  public error = "";
+  public loading = false;
+  public returnUrl: string;
 
   // Private
-  private _unsubscribeAll: Subject<any>;
+  private _unsubscribeAll: Subject<any> = new Subject();
 
   /**
    * Constructor
-   *
-   * @param {CoreConfigService} _coreConfigService
-   * @param {FormBuilder} _formBuilder
    */
+
   constructor(
     private _coreConfigService: CoreConfigService,
-    private _formBuilder: UntypedFormBuilder
+    private _authenticationService: AuthenticationService,
+    private _formBuilder: UntypedFormBuilder,
+    private _route: ActivatedRoute,
+    private _router: Router
   ) {
-    this._unsubscribeAll = new Subject();
-
     // Configure the layout
     this._coreConfigService.config = {
       layout: {
-        navbar: {
-          hidden: true,
-        },
-        menu: {
-          hidden: true,
-        },
-        footer: {
-          hidden: true,
-        },
+        navbar: { hidden: true },
+        menu: { hidden: true },
+        footer: { hidden: true },
         customizer: false,
         enableLocalStorage: false,
       },
     };
   }
 
-  // convenience getter for easy access to form fields
+  // Convenience getter for easy access to form fields
   get f() {
     return this.registerForm.controls;
   }
 
   /**
-   * Toggle password
+   * Custom validator to check if password and confirm password match
+   */
+  mustMatch(password: string, confirmPassword: string) {
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+      const passControl = formGroup.get(password);
+      const confirmPassControl = formGroup.get(confirmPassword);
+
+      if (!passControl || !confirmPassControl) {
+        return null;
+      }
+
+      if (
+        confirmPassControl.errors &&
+        !confirmPassControl.errors["mustMatch"]
+      ) {
+        return null;
+      }
+
+      // So sánh giá trị của mật khẩu và xác nhận mật khẩu
+      if (passControl.value !== confirmPassControl.value) {
+        confirmPassControl.setErrors({ mustMatch: true });
+      } else {
+        confirmPassControl.setErrors(null);
+      }
+
+      return null;
+    };
+  }
+
+  /**
+   * Toggle password visibility
    */
   togglePasswordTextType() {
     this.passwordTextType = !this.passwordTextType;
+  }
+
+  toggleConfPasswordTextType() {
+    this.confPasswordTextType = !this.confPasswordTextType;
   }
 
   /**
@@ -74,24 +109,71 @@ export class AuthRegisterV2Component implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    // stop here if form is invalid
+    // Stop here if the form is invalid
     if (this.registerForm.invalid) {
       return;
     }
-  }
 
-  // Lifecycle Hooks
-  // -----------------------------------------------------------------------------------------------------
+    // Register
+    this.loading = true;
+
+    this._authenticationService
+      .register(
+        this.f.email.value,
+        this.f.password.value,
+        this.f.organizationName.value
+      )
+      .pipe(first())
+      .subscribe(
+        () => {
+          // After successful registration, navigate to the login page
+          this._router.navigate(["/pages/authentication/login-v2"]);
+        },
+        (error) => {
+          this.error = error;
+          this.loading = false;
+        }
+      );
+  }
 
   /**
    * On init
    */
   ngOnInit(): void {
-    this.registerForm = this._formBuilder.group({
-      username: ["", [Validators.required]],
-      email: ["", [Validators.required, Validators.email]],
-      password: ["", Validators.required],
-    });
+    // Initialize the registration form with validations
+    this.registerForm = this._formBuilder.group(
+      {
+        email: [
+          "",
+          [Validators.required, Validators.email, Validators.maxLength(255)],
+        ],
+        password: [
+          "",
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.maxLength(255),
+            Validators.pattern(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/), // Pattern for strong password
+          ],
+        ],
+        organizationName: [
+          "",
+          [
+            Validators.required,
+            Validators.minLength(3),
+            Validators.maxLength(255),
+          ],
+        ],
+        confirmPassword: ["", Validators.required],
+        acceptTerms: [false, Validators.requiredTrue],
+      },
+      {
+        validator: this.mustMatch("password", "confirmPassword"), // Custom validator
+      }
+    );
+
+    // Get return url from route parameters or default to '/'
+    this.returnUrl = this._route.snapshot.queryParams["returnUrl"] || "/";
 
     // Subscribe to config changes
     this._coreConfigService.config
@@ -99,6 +181,19 @@ export class AuthRegisterV2Component implements OnInit {
       .subscribe((config) => {
         this.coreConfig = config;
       });
+  }
+
+  // Getter methods for form controls to easily access validation in the template
+  get email() {
+    return this.registerForm.get("email");
+  }
+
+  get password() {
+    return this.registerForm.get("password");
+  }
+
+  get organizationName() {
+    return this.registerForm.get("organizationName");
   }
 
   /**
